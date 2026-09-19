@@ -58,7 +58,7 @@ The ONBOARD360 transformation initiative transitions NovaBank from a reactive, m
 
 ---
 
-## 5. Governance & Source-of-Truth Rules
-Every finding, requirement, metric, and dollar saved in this project must adhere to the **Single Chain of Truth**:
-$$\text{AS-IS Bottleneck} \xrightarrow{\text{Evidence}} \text{Root Cause} \xrightarrow{\text{Requirement}} \text{Solution Design} \xrightarrow{\text{UAT Proof}} \text{Financial Benefit}$$
-No metric may be invented; all financial claims must tie back to explicit activity-based costing equations.
+## 5. Governance & Operational Methodology
+Every operational finding, business requirement, and cost saving in this project follows standard process engineering practices:
+$$\text{AS-IS Bottleneck} \xrightarrow{\text{Data Evidence}} \text{Root Cause} \xrightarrow{\text{Requirement}} \text{Solution Design} \xrightarrow{\text{UAT Validation}} \text{Quantified Benefit}$$
+All financial projections are derived from explicit activity-based costing equations and reconciled against baseline operational staffing.
