@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_TO_BE_ONBOARD360"
+                  targetNamespace="http://novabank.com/schema/bpmn"
+                  exporter="ONBOARD360 Lead Business Analyst"
+                  exporterVersion="2.0.0">
+  <bpmn:collaboration id="Collaboration_ToBe">
+    <bpmn:participant id="Participant_Customer_ToBe" name="Customer (Mobile / Web App)" processRef="Process_Customer_ToBe" />
+    <bpmn:participant id="Participant_Platform_ToBe" name="ONBOARD360 Intelligent Orchestration Engine" processRef="Process_Platform_ToBe" />
+    <bpmn:messageFlow id="Flow_Msg_LiveCapture" sourceRef="Task_GuidedCapture" targetRef="Task_RealtimeCV" />
+    <bpmn:messageFlow id="Flow_Msg_Remediation" sourceRef="Task_AutoPromptUser" targetRef="Task_SelfRemediation" />
+    <bpmn:messageFlow id="Flow_Msg_ActiveNotify" sourceRef="Task_InstantProvisioning" targetRef="Event_AccountReady" />
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_Customer_ToBe" isExecutable="false">
+    <bpmn:startEvent id="Start_Customer_ToBe" name="Initiates Digital Application" />
+    <bpmn:sequenceFlow id="Flow_TBC_1" sourceRef="Start_Customer_ToBe" targetRef="Task_GuidedCapture" />
+    <bpmn:userTask id="Task_GuidedCapture" name="Capture ID with Live CV Gating &amp; Liveness Selfie" />
+    <bpmn:sequenceFlow id="Flow_TBC_2" sourceRef="Task_GuidedCapture" targetRef="Gateway_CustFeedback" />
+    
+    <bpmn:exclusiveGateway id="Gateway_CustFeedback" name="Need Resubmission?" />
+    <bpmn:sequenceFlow id="Flow_TBC_Clean" name="No (Clean)" sourceRef="Gateway_CustFeedback" targetRef="Event_AccountReady" />
+    <bpmn:sequenceFlow id="Flow_TBC_Remediate" name="Yes (AI Link)" sourceRef="Gateway_CustFeedback" targetRef="Task_SelfRemediation" />
+    
+    <bpmn:userTask id="Task_SelfRemediation" name="Instant Self-Service Camera Remediation (30s)" />
+    <bpmn:sequenceFlow id="Flow_TBC_3" sourceRef="Task_SelfRemediation" targetRef="Event_AccountReady" />
+
+    <bpmn:intermediateCatchEvent id="Event_AccountReady" name="Receive Real-time Activation Push" />
+    <bpmn:sequenceFlow id="Flow_TBC_4" sourceRef="Event_AccountReady" targetRef="Task_InstantSpend" />
+    <bpmn:userTask id="Task_InstantSpend" name="Push Virtual Card to Wallet &amp; Fund Account" />
+    <bpmn:endEvent id="End_Customer_Active_ToBe" name="Account Active &amp; Transacting (&lt;15m)" />
+    <bpmn:sequenceFlow id="Flow_TBC_5" sourceRef="Task_InstantSpend" targetRef="End_Customer_Active_ToBe" />
+  </bpmn:process>
+
+  <bpmn:process id="Process_Platform_ToBe" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Platform">
+      <bpmn:lane id="Lane_Automated_Core" name="Automated Real-Time Engines (STP)">
+        <bpmn:flowNodeRef>Task_RealtimeCV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_OCR_CIP</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FuzzyScreening</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_STP_Eligible</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InstantProvisioning</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_STP_Complete</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_AI_Triage" name="AI Exception Triage Engine">
+        <bpmn:flowNodeRef>Task_AITriageClassifier</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_AI_Routing</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AutoPromptUser</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Analyst_Workbench" name="Unified Analyst Workbench (HITL)">
+        <bpmn:flowNodeRef>Task_UnifiedReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_AnalystDecision</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Declined_ToBe</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:serviceTask id="Task_RealtimeCV" name="Real-Time Edge Computer Vision Gating" />
+    <bpmn:sequenceFlow id="Flow_TBP_1" sourceRef="Task_RealtimeCV" targetRef="Task_OCR_CIP" />
+
+    <bpmn:serviceTask id="Task_OCR_CIP" name="Automated OCR Extraction &amp; Bureau Check" />
+    <bpmn:sequenceFlow id="Flow_TBP_2" sourceRef="Task_OCR_CIP" targetRef="Task_FuzzyScreening" />
+
+    <bpmn:serviceTask id="Task_FuzzyScreening" name="Jaro-Winkler Fuzzy Watchlist &amp; Risk Scoring" />
+    <bpmn:sequenceFlow id="Flow_TBP_3" sourceRef="Task_FuzzyScreening" targetRef="Gateway_STP_Eligible" />
+
+    <bpmn:exclusiveGateway id="Gateway_STP_Eligible" name="STP Qualified? (Low Risk, Clean Checks)" />
+    <bpmn:sequenceFlow id="Flow_TBP_STP_Yes" name="Yes (&gt;= 60%)" sourceRef="Gateway_STP_Eligible" targetRef="Task_InstantProvisioning" />
+    <bpmn:sequenceFlow id="Flow_TBP_STP_No" name="No (Exception / Alert)" sourceRef="Gateway_STP_Eligible" targetRef="Task_AITriageClassifier" />
+
+    <!-- AI Exception Triage Lane -->
+    <bpmn:businessRuleTask id="Task_AITriageClassifier" name="Evaluate Risk Features &amp; Score Triage Confidence" />
+    <bpmn:sequenceFlow id="Flow_TBP_4" sourceRef="Task_AITriageClassifier" targetRef="Gateway_AI_Routing" />
+
+    <bpmn:exclusiveGateway id="Gateway_AI_Routing" name="Triage Route" />
+    <bpmn:sequenceFlow id="Flow_TBP_AutoRemediation" name="Low-Risk Doc Anomaly (Conf &gt;= 0.85)" sourceRef="Gateway_AI_Routing" targetRef="Task_AutoPromptUser" />
+    <bpmn:sequenceFlow id="Flow_TBP_HumanQueue" name="Compliance Alert / High Risk" sourceRef="Gateway_AI_Routing" targetRef="Task_UnifiedReview" />
+
+    <bpmn:sendTask id="Task_AutoPromptUser" name="Send Dynamic Self-Service Remediation Link" />
+
+    <!-- Human-In-The-Loop Lane -->
+    <bpmn:userTask id="Task_UnifiedReview" name="Unified Workbench Investigation with AI Insights" />
+    <bpmn:sequenceFlow id="Flow_TBP_5" sourceRef="Task_UnifiedReview" targetRef="Gateway_AnalystDecision" />
+
+    <bpmn:exclusiveGateway id="Gateway_AnalystDecision" name="Analyst Decision" />
+    <bpmn:sequenceFlow id="Flow_TBP_AnalystApprove" name="Approve" sourceRef="Gateway_AnalystDecision" targetRef="Task_InstantProvisioning" />
+    <bpmn:sequenceFlow id="Flow_TBP_AnalystDecline" name="Decline" sourceRef="Gateway_AnalystDecision" targetRef="EndEvent_Declined_ToBe" />
+
+    <!-- Core Provisioning -->
+    <bpmn:serviceTask id="Task_InstantProvisioning" name="Real-Time Core Ledger REST API Account Creation" />
+    <bpmn:sequenceFlow id="Flow_TBP_6" sourceRef="Task_InstantProvisioning" targetRef="EndEvent_STP_Complete" />
+
+    <bpmn:endEvent id="EndEvent_STP_Complete" name="Account Provisioned in &lt;1,500ms" />
+    <bpmn:endEvent id="EndEvent_Declined_ToBe" name="Application Refused with Full Audit Trail" />
+  </bpmn:process>
+</bpmn:definitions>

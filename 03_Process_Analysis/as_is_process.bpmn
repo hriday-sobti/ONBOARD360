@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_AS_IS_ONBOARD360"
+                  targetNamespace="http://novabank.com/schema/bpmn"
+                  exporter="ONBOARD360 Lead Business Analyst"
+                  exporterVersion="1.0.0">
+  <bpmn:collaboration id="Collaboration_AsIs">
+    <bpmn:participant id="Participant_Customer" name="Customer" processRef="Process_Customer" />
+    <bpmn:participant id="Participant_NovaBank" name="NovaBank Operations &amp; Systems" processRef="Process_NovaBank" />
+    <bpmn:messageFlow id="Flow_Msg_SubmitApp" sourceRef="Task_SubmitApplication" targetRef="StartEvent_AppReceived" />
+    <bpmn:messageFlow id="Flow_Msg_ReworkNotice" sourceRef="Task_SendReworkEmail" targetRef="Task_ResubmitDocuments" />
+    <bpmn:messageFlow id="Flow_Msg_ReworkUpload" sourceRef="Task_ResubmitDocuments" targetRef="Task_L1DocumentReview" />
+  </bpmn:collaboration>
+
+  <!-- Customer Process Pool -->
+  <bpmn:process id="Process_Customer" isExecutable="false">
+    <bpmn:startEvent id="Start_CustomerJourney" name="Decides to Apply" />
+    <bpmn:sequenceFlow id="Flow_C1" sourceRef="Start_CustomerJourney" targetRef="Task_SubmitApplication" />
+    <bpmn:userTask id="Task_SubmitApplication" name="Submit Online Application &amp; Upload IDs" />
+    <bpmn:sequenceFlow id="Flow_C2" sourceRef="Task_SubmitApplication" targetRef="Event_WaitStatus" />
+    <bpmn:intermediateCatchEvent id="Event_WaitStatus" name="Wait for Email Notification" />
+    <bpmn:sequenceFlow id="Flow_C3" sourceRef="Event_WaitStatus" targetRef="Gateway_CustomerAction" />
+    <bpmn:exclusiveGateway id="Gateway_CustomerAction" name="Outcome?" />
+    <bpmn:sequenceFlow id="Flow_C_Approved" name="Approved" sourceRef="Gateway_CustomerAction" targetRef="Task_FundAccount" />
+    <bpmn:sequenceFlow id="Flow_C_Rework" name="Rework Requested" sourceRef="Gateway_CustomerAction" targetRef="Task_ResubmitDocuments" />
+    <bpmn:userTask id="Task_ResubmitDocuments" name="Take New Photo &amp; Resubmit ID" />
+    <bpmn:userTask id="Task_FundAccount" name="Receive Credentials &amp; Fund Account" />
+    <bpmn:endEvent id="End_CustomerActive" name="Active Account" />
+    <bpmn:sequenceFlow id="Flow_C4" sourceRef="Task_FundAccount" targetRef="End_CustomerActive" />
+  </bpmn:process>
+
+  <!-- NovaBank Internal Process Pool -->
+  <bpmn:process id="Process_NovaBank" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_NovaBank">
+      <bpmn:lane id="Lane_Systems" name="Automated Systems &amp; Batch">
+        <bpmn:flowNodeRef>StartEvent_AppReceived</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BatchScreening</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ScreeningPass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CoreProvisioning</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Activated</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_L1Ops" name="L1 Operations Review Queue">
+        <bpmn:flowNodeRef>Task_L1DocumentReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_DocLegible</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendReworkEmail</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_L2Compliance" name="L2 AML &amp; Compliance Queue">
+        <bpmn:flowNodeRef>Task_L2ComplianceInvestigation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ComplianceDecision</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Rejected</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_AppReceived" name="Application Ingested" />
+    <bpmn:sequenceFlow id="Flow_B1" sourceRef="StartEvent_AppReceived" targetRef="Task_BatchScreening" />
+    
+    <bpmn:serviceTask id="Task_BatchScreening" name="Overnight Batch Screening (CIP / Sanctions)" />
+    <bpmn:sequenceFlow id="Flow_B2" sourceRef="Task_BatchScreening" targetRef="Gateway_ScreeningPass" />
+
+    <bpmn:exclusiveGateway id="Gateway_ScreeningPass" name="Flags / OCR Match Score Low?" />
+    <bpmn:sequenceFlow id="Flow_B_Clear" name="Clean (53.2%)" sourceRef="Gateway_ScreeningPass" targetRef="Task_CoreProvisioning" />
+    <bpmn:sequenceFlow id="Flow_B_Flagged" name="Flagged (46.8%)" sourceRef="Gateway_ScreeningPass" targetRef="Task_L1DocumentReview" />
+
+    <bpmn:userTask id="Task_L1DocumentReview" name="Manual Document Quality &amp; OCR Inspection" />
+    <bpmn:sequenceFlow id="Flow_B3" sourceRef="Task_L1DocumentReview" targetRef="Gateway_DocLegible" />
+
+    <bpmn:exclusiveGateway id="Gateway_DocLegible" name="Document Valid?" />
+    <bpmn:sequenceFlow id="Flow_B_DocValid" name="Valid" sourceRef="Gateway_DocLegible" targetRef="Task_L2ComplianceInvestigation" />
+    <bpmn:sequenceFlow id="Flow_B_DocInvalid" name="Invalid / Blurry (34.2%)" sourceRef="Gateway_DocLegible" targetRef="Task_SendReworkEmail" />
+
+    <bpmn:sendTask id="Task_SendReworkEmail" name="Dispatch Manual Rework Email" />
+
+    <bpmn:userTask id="Task_L2ComplianceInvestigation" name="L2 Enhanced Due Diligence &amp; PEP Review" />
+    <bpmn:sequenceFlow id="Flow_B4" sourceRef="Task_L2ComplianceInvestigation" targetRef="Gateway_ComplianceDecision" />
+
+    <bpmn:exclusiveGateway id="Gateway_ComplianceDecision" name="Compliance Cleared?" />
+    <bpmn:sequenceFlow id="Flow_B_CompApproved" name="Approved" sourceRef="Gateway_ComplianceDecision" targetRef="Task_CoreProvisioning" />
+    <bpmn:sequenceFlow id="Flow_B_CompDeclined" name="Declined" sourceRef="Gateway_ComplianceDecision" targetRef="EndEvent_Rejected" />
+
+    <bpmn:serviceTask id="Task_CoreProvisioning" name="Batch Core Ledger Account Creation" />
+    <bpmn:sequenceFlow id="Flow_B5" sourceRef="Task_CoreProvisioning" targetRef="EndEvent_Activated" />
+
+    <bpmn:endEvent id="EndEvent_Activated" name="Account Provisioned &amp; Active" />
+    <bpmn:endEvent id="EndEvent_Rejected" name="Application Terminated / Declined" />
+  </bpmn:process>
+</bpmn:definitions>

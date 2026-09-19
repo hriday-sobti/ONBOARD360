@@ -1,0 +1,11 @@
+# Python cache and data files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+06_Data_Analysis/data/*.parquet
+06_Data_Analysis/onboard360.db
+07_Solution_Design/model/*.joblib
+.vscode/
+.idea/
