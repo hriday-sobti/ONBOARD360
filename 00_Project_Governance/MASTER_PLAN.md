@@ -118,4 +118,3 @@
 * `11_Executive_Presentation/EXECUTIVE_REVIEW.md` (C-Suite board summary, problem-to-value narrative)
 * `README.md` (Master repository overview, portfolio badges, reproduction steps)
 * `00_Project_Governance/FINAL_AUDIT_REPORT.md` (100% verification across all 110 checklist criteria)
-* `00_Project_Governance/RESUME_PORTFOLIO_ENTRY.md` (Impact-driven resume bullet points)

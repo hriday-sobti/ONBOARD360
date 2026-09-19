@@ -146,13 +146,3 @@ python 07_Solution_Design/ai_triage_engine.py
 python 10_Business_Case/financial_model.py
 ```
 
----
-
-## 📜 Resume / Portfolio Entry
-**ONBOARD360 — AI-Assisted Customer Onboarding & KYC Process Transformation**  
-*Lead Business Analyst & Solution Architect | Python, SQL, BPMN 2.0, Power BI, Scikit-Learn, Agile/Scrum*
-* Spearheaded end-to-end operational transformation of digital onboarding across 520,000 annual applications, compressing turnaround time (TAT) from 58.70 hours to < 24.0 hours (< 15 mins for 60% STP).
-* Engineered empirical Python & SQL analytics suite analyzing Little's Law queue dynamics, isolating that 89.3% of cycle time was idle queue buffer and 83.2% of rework stemmed from 3 preventable document defects.
-* Authored full enterprise governance suite including BRD (10 BRs), FRD (35 FRs), 10 Business Rules, 35+ INVEST-compliant user stories with Gherkin acceptance criteria, and a 100% bidirectional RTM.
-* Architected human-in-the-loop AI Exception Triage model using Random Forest and deterministic guardrails, auto-remediating 70% of low-risk document exceptions while preserving 100% regulatory AML/PEP compliance.
-* Built activity-based costing (ABC) financial model proving an 81.4% unit cost reduction ($67.45 to $12.55), delivering $22.09M in annual net cash savings, a 3-Year NPV of $49.50M, and a 2.0-month payback.
