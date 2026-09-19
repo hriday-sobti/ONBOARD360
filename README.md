@@ -1,5 +1,5 @@
 # ONBOARD360 — AI-Assisted Customer Onboarding & KYC Transformation Platform
-**Author:** Hriday Singh Sobti (Senior Business Analyst & Solution Architect)  
+**Contributor:** Hriday Singh Sobti  
 **Contact:** [hridaysobti@gmail.com](mailto:hridaysobti@gmail.com) | [GitHub Profile](https://github.com/hriday-sobti)  
 **Domain:** Global Retail & Commercial Banking Operations (Fintech / RegTech)  
 **Enterprise Portfolio Asset:** Production-Grade End-to-End Business Analysis Project  
