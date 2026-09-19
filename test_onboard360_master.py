@@ -259,24 +259,35 @@ class TestOnboard360Master(unittest.TestCase):
     def test_104_top_feature_is_risk_or_rework(self):
         top_idx = np.argmax(self.clf.feature_importances_)
         self.assertIn(top_idx, [0, 3]) # risk_tier_num or rework_reason_num
+
+    def _make_df(self, array_2d):
+        feature_cols = [
+            "risk_tier_num", "channel_num", "cust_type_num", "rework_reason_num",
+            "sharpness_score", "address_match_score", "touch_time_hours"
+        ]
+        return pd.DataFrame(array_2d, columns=feature_cols)
+
     def test_105_predict_low_risk_blurry(self):
-        # [risk_tier_num, channel_num, cust_type_num, rework_reason_num, sharpness_score, address_match_score, touch_time_hours]
-        sample = np.array([[0, 0, 0, 1, 0.45, 95.0, 1.2]])
+        sample = self._make_df([[0, 0, 0, 1, 0.45, 95.0, 1.2]])
         self.assertEqual(self.clf.predict(sample)[0], 0) # Auto-Remediation
+
     def test_106_predict_low_risk_expired_id(self):
-        sample = np.array([[0, 0, 0, 2, 0.85, 95.0, 1.2]])
+        sample = self._make_df([[0, 0, 0, 2, 0.85, 95.0, 1.2]])
         self.assertEqual(self.clf.predict(sample)[0], 0) # Auto-Remediation
+
     def test_107_predict_pep_routes_to_l2(self):
-        sample = np.array([[3, 0, 0, 0, 0.95, 98.0, 3.5]])
+        sample = self._make_df([[3, 0, 0, 0, 0.95, 98.0, 3.5]])
         self.assertEqual(self.clf.predict(sample)[0], 2) # L2 Compliance
+
     def test_108_predict_high_risk_routes_to_l2(self):
-        sample = np.array([[2, 1, 3, 0, 0.90, 95.0, 3.2]])
+        sample = self._make_df([[2, 1, 3, 0, 0.90, 95.0, 3.2]])
         self.assertEqual(self.clf.predict(sample)[0], 2) # L2 Compliance
+
     def test_109_predict_medium_risk_routes_to_l1(self):
-        sample = np.array([[1, 0, 0, 3, 0.85, 65.0, 2.0]])
+        sample = self._make_df([[1, 0, 0, 3, 0.85, 65.0, 2.0]])
         self.assertEqual(self.clf.predict(sample)[0], 1) # L1 Ops Queue
+
     def test_110_zero_leakage_pep_to_auto(self):
-        # 100 variations of PEP cases
         pep_cases = np.zeros((100, 7))
         pep_cases[:, 0] = 3 # PEP
         pep_cases[:, 1] = np.random.randint(0, 4, 100)
@@ -285,8 +296,10 @@ class TestOnboard360Master(unittest.TestCase):
         pep_cases[:, 4] = np.random.uniform(0.1, 1.0, 100)
         pep_cases[:, 5] = np.random.uniform(40.0, 100.0, 100)
         pep_cases[:, 6] = np.random.uniform(0.5, 10.0, 100)
-        preds = self.clf.predict(pep_cases)
+        df_pep = self._make_df(pep_cases)
+        preds = self.clf.predict(df_pep)
         self.assertNotIn(0, preds) # NEVER Class 0 (Auto-Remediation)
+
     def test_111_zero_leakage_high_risk_to_auto(self):
         high_cases = np.zeros((100, 7))
         high_cases[:, 0] = 2 # High Risk
@@ -296,39 +309,50 @@ class TestOnboard360Master(unittest.TestCase):
         high_cases[:, 4] = np.random.uniform(0.1, 1.0, 100)
         high_cases[:, 5] = np.random.uniform(40.0, 100.0, 100)
         high_cases[:, 6] = np.random.uniform(0.5, 10.0, 100)
-        preds = self.clf.predict(high_cases)
+        df_high = self._make_df(high_cases)
+        preds = self.clf.predict(df_high)
         self.assertNotIn(0, preds) # NEVER Class 0
+
     def test_112_confidence_score_low_risk_blurry(self):
-        sample = np.array([[0, 0, 0, 1, 0.40, 95.0, 1.0]])
+        sample = self._make_df([[0, 0, 0, 1, 0.40, 95.0, 1.0]])
         prob = self.clf.predict_proba(sample)[0]
         self.assertGreaterEqual(prob[0], 0.85) # High confidence
+
     def test_113_confidence_score_pep(self):
-        sample = np.array([[3, 0, 0, 0, 0.95, 95.0, 3.5]])
+        sample = self._make_df([[3, 0, 0, 0, 0.95, 95.0, 3.5]])
         prob = self.clf.predict_proba(sample)[0]
         self.assertGreaterEqual(prob[2], 0.85)
+
     def test_114_model_determinism(self):
-        sample = np.array([[0, 0, 0, 1, 0.45, 92.0, 1.2]])
+        sample = self._make_df([[0, 0, 0, 1, 0.45, 92.0, 1.2]])
         p1 = self.clf.predict(sample)[0]
         p2 = self.clf.predict(sample)[0]
         self.assertEqual(p1, p2)
+
     def test_115_model_depth_bounded(self):
         self.assertEqual(self.clf.max_depth, 12)
+
     def test_116_model_trees_count(self):
         self.assertEqual(len(self.clf.estimators_), 100)
+
     def test_117_address_mismatch_routes_to_l1(self):
-        sample = np.array([[0, 1, 0, 3, 0.95, 55.0, 1.5]]) # Low risk, but address mismatch
+        sample = self._make_df([[0, 1, 0, 3, 0.95, 55.0, 1.5]])
         pred = self.clf.predict(sample)[0]
         self.assertEqual(pred, 1) # L1 Ops
+
     def test_118_incomplete_form_routes_to_l1(self):
-        sample = np.array([[0, 1, 0, 4, 0.95, 95.0, 1.5]]) # Incomplete form
+        sample = self._make_df([[0, 1, 0, 4, 0.95, 95.0, 1.5]])
         pred = self.clf.predict(sample)[0]
         self.assertEqual(pred, 1) # L1 Ops
+
     def test_119_name_mismatch_routes_to_l1(self):
-        sample = np.array([[0, 0, 0, 5, 0.95, 95.0, 1.5]]) # Name mismatch
+        sample = self._make_df([[0, 0, 0, 5, 0.95, 95.0, 1.5]])
         pred = self.clf.predict(sample)[0]
         self.assertEqual(pred, 1) # L1 Ops
+
     def test_120_ai_governance_specification_present(self):
         self.assertTrue(os.path.exists("07_Solution_Design/AI_TRIAGE_MODEL_CARD.md"))
+
 
     # =========================================================================
     # SUITE 6: FINANCIAL ROI & BUSINESS CASE VALIDATION (Tests 121 - 140)

@@ -3,7 +3,14 @@
 **Contact:** [hridaysobti@gmail.com](mailto:hridaysobti@gmail.com) | [GitHub Profile](https://github.com/hriday-sobti)  
 **Domain:** Global Retail & Commercial Banking Operations (Fintech / RegTech)  
 **Enterprise Portfolio Asset:** Production-Grade End-to-End Business Analysis Project  
----
+
+[![Verification Suite](https://img.shields.io/badge/Test_Suite-160%2F160_PASSING-success?style=flat-square&logo=checkmarx)](test_onboard360_master.py)
+[![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=flat-square&logo=python&logoColor=white)](06_Data_Analysis/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=flat-square&logo=postgresql&logoColor=white)](06_Data_Analysis/SQL/)
+[![Power BI](https://img.shields.io/badge/Power_BI-DAX_Catalog-F2C811?style=flat-square&logo=powerbi&logoColor=black)](08_PowerBI/)
+[![BPMN 2.0](https://img.shields.io/badge/BPMN-2.0_Standard-orange?style=flat-square)](03_Process_Analysis/)
+[![UAT Pass Rate](https://img.shields.io/badge/UAT-100%25_Sign--off-brightgreen?style=flat-square)](09_UAT/)
+[![ROI Payback](https://img.shields.io/badge/Capital_Payback-2.0_Months-blueviolet?style=flat-square)](10_Business_Case/)
 
 ## 🌟 Executive Summary & Impact
 **ONBOARD360** is a comprehensive, auditable, and production-validated enterprise business analysis and process transformation portfolio project. Modeled after **NovaBank International** (a global multi-jurisdictional bank handling **520,000+ onboarding applications annually**), the project addresses chronic operational bottlenecks that plagued the institution's onboarding operations:
