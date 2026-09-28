@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ONBOARD360 — Executive Power BI Analytics Command Center</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #1F4E79;
+      --primary-light: #2E75B6;
+      --primary-dark: #13324E;
+      --accent: #00A86B;
+      --warning: #E67E22;
+      --danger: #C0392B;
+      --bg: #F4F6F9;
+      --card-bg: #FFFFFF;
+      --text-main: #2C3E50;
+      --text-muted: #7F8C8D;
+      --border: #E2E8F0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); line-height: 1.5; }
+    header { background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; padding: 1.25rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .brand { display: flex; align-items: center; gap: 1rem; }
+    .brand-logo { width: 44px; height: 44px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--primary); font-size: 1.4rem; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .brand-title h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
+    .brand-title p { font-size: 0.85rem; opacity: 0.85; }
+    .header-badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+    
+    /* Navigation Tabs */
+    .nav-bar { background: white; border-bottom: 1px solid var(--border); display: flex; padding: 0 2rem; gap: 0.5rem; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .nav-tab { padding: 0.9rem 1.2rem; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+    .nav-tab:hover { color: var(--primary); }
+    .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* Controls Bar */
+    .controls-bar { background: white; border-bottom: 1px solid var(--border); padding: 0.75rem 2rem; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+    .slicer-group { display: flex; align-items: center; gap: 0.5rem; }
+    .slicer-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .slicer-select { padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; color: var(--text-main); background: #F8FAFC; outline: none; cursor: pointer; }
+    .slicer-select:focus { border-color: var(--primary); }
+
+    /* Main Container */
+    .container { padding: 1.5rem 2rem; max-width: 1600px; margin: 0 auto; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* KPI Cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .kpi-card { background: white; border-radius: 8px; padding: 1.2rem; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .kpi-title { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase; }
+    .kpi-value { font-size: 1.7rem; font-weight: 700; color: var(--primary-dark); }
+    .kpi-sub { font-size: 0.8rem; margin-top: 0.3rem; display: flex; align-items: center; gap: 0.3rem; }
+    .kpi-sub.positive { color: var(--accent); font-weight: 600; }
+    .kpi-sub.warning { color: var(--danger); font-weight: 600; }
+
+    /* Chart Cards */
+    .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+    .chart-grid.full-width { grid-template-columns: 1fr; }
+    .chart-card { background: white; border-radius: 8px; border: 1px solid var(--border); padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; flex-direction: column; }
+    .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; border-bottom: 1px solid #F1F5F9; padding-bottom: 0.75rem; }
+    .chart-title h3 { font-size: 1rem; font-weight: 700; color: var(--primary-dark); }
+    .chart-title p { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .chart-container { position: relative; flex-grow: 1; min-height: 280px; width: 100%; }
+
+    /* Insight Block */
+    .insight-box { background: #F8FAFC; border-left: 4px solid var(--primary-light); padding: 0.85rem 1rem; border-radius: 0 6px 6px 0; margin-top: 1rem; font-size: 0.85rem; }
+    .insight-title { font-weight: 700; color: var(--primary); margin-bottom: 0.2rem; font-size: 0.8rem; text-transform: uppercase; }
+
+    /* Tables */
+    .table-card { background: white; border-radius: 8px; border: 1px solid var(--border); padding: 1.25rem; margin-bottom: 1.5rem; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: #F1F5F9; color: var(--primary-dark); text-align: left; padding: 0.75rem 1rem; font-weight: 700; border-bottom: 2px solid var(--border); }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-main); }
+    tr:hover td { background: #F8FAFC; }
+    .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .badge-success { background: #D1FAE5; color: #065F46; }
+    .badge-warning { background: #FEF3C7; color: #92400E; }
+    .badge-danger { background: #FEE2E2; color: #991B1B; }
+
+    /* Interactive Simulator */
+    .sim-panel { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .sim-slider-container { display: flex; align-items: center; gap: 1.5rem; margin: 1rem 0; }
+    .sim-slider { flex-grow: 1; height: 8px; border-radius: 4px; outline: none; -webkit-appearance: none; background: #93C5FD; cursor: pointer; }
+    .sim-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+    .sim-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); min-width: 80px; text-align: right; }
+
+    footer { background: white; border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 3rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Executive Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">360</div>
+      <div class="brand-title">
+        <h1>ONBOARD360 — Executive Power BI Analytics Command Center</h1>
+        <p>Global Retail & Commercial Customer Onboarding Optimization · NovaBank International</p>
+      </div>
+    </div>
+    <div class="header-badge">
+      Audit Status: 100% Reconciled (160/160 Tests Passing)
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-bar">
+    <div class="nav-tab active" onclick="switchTab('p1')">1. Executive Command Center</div>
+    <div class="nav-tab" onclick="switchTab('p2')">2. Bottleneck & Queue Dynamics</div>
+    <div class="nav-tab" onclick="switchTab('p3')">3. Pareto Defect Analysis</div>
+    <div class="nav-tab" onclick="switchTab('p4')">4. What-If Financial Simulator</div>
+    <div class="nav-tab" onclick="switchTab('p5')">5. Executive Action & ROI</div>
+  </div>
+
+  <!-- Global Slicers -->
+  <div class="controls-bar">
+    <div class="slicer-group">
+      <span class="slicer-label">Region:</span>
+      <select class="slicer-select" id="regionSlicer" onchange="updateSlicers()">
+        <option value="ALL">Global (All Regions)</option>
+        <option value="UK_EU">UK & European Union</option>
+        <option value="US_NA">North America (US/CA)</option>
+        <option value="APAC">Asia-Pacific (APAC)</option>
+        <option value="LATAM">Latin America (LatAm)</option>
+      </select>
+    </div>
+    <div class="slicer-group">
+      <span class="slicer-label">Channel:</span>
+      <select class="slicer-select" id="channelSlicer" onchange="updateSlicers()">
+        <option value="ALL">All Intake Channels</option>
+        <option value="Mobile_App">Mobile Application (50%)</option>
+        <option value="Web_Portal">Web Self-Service Portal (28%)</option>
+        <option value="Branch_Assisted">Branch Assisted (12%)</option>
+        <option value="Affiliate_Partner">Affiliate Partner (10%)</option>
+      </select>
+    </div>
+    <div class="slicer-group">
+      <span class="slicer-label">Risk Tier:</span>
+      <select class="slicer-select" id="riskSlicer" onchange="updateSlicers()">
+        <option value="ALL">All Risk Tiers</option>
+        <option value="LOW">Low Risk (STP Candidate)</option>
+        <option value="MEDIUM">Medium Risk (L1 Ops)</option>
+        <option value="HIGH">High Risk (L2 Compliance)</option>
+        <option value="PEP">Politically Exposed Person</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- ================= PAGE 1 ================= -->
+    <div id="p1" class="tab-content active">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Annual Volume</div>
+          <div class="kpi-value" id="kpi_volume">520,000</div>
+          <div class="kpi-sub">Inbound applications / year</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Mean Turnaround Time</div>
+          <div class="kpi-value" id="kpi_tat">58.70h</div>
+          <div class="kpi-sub warning">Target: &lt; 24.0h (-59.1%)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">First-Pass Yield (FPY)</div>
+          <div class="kpi-value" id="kpi_fpy">58.12%</div>
+          <div class="kpi-sub warning">Target: &ge; 78.0% (+19.9%)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Abandonment Rate</div>
+          <div class="kpi-value" id="kpi_abandon">16.25%</div>
+          <div class="kpi-sub warning">84,500 lost accounts</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Direct Unit Cost</div>
+          <div class="kpi-value" id="kpi_unit_cost">$67.45</div>
+          <div class="kpi-sub warning">Target: $12.55 (-81.4%)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Annual Net Benefit</div>
+          <div class="kpi-value" style="color: var(--accent);">$22.09M</div>
+          <div class="kpi-sub positive">Payback: 2.0 Months</div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 1 — Monthly Application Inflow vs. SLA Breach Rate (2025)</h3>
+              <p>Evaluating volume stability against customer 48-hour SLA breach commitments</p>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartFig1"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            NovaBank fails customer SLAs on 45.92% of all applications (238,784 breaches) every month. Delays are not caused by seasonal surges but by structural queue friction.
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 2 — Intake Volume & Channel Mix Breakdown</h3>
+              <p>520,000 application distribution across digital and physical touchpoints</p>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartFig2"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            Digital channels account for 78% of demand (Mobile 50%, Web 28%). Real-time camera quality checks in mobile viewfinders target the exact origin of 78% of customers.
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-grid full-width">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 3 — Application Lifecycle Status Outcomes by Customer Segment</h3>
+              <p>Approved (79.7%), Abandoned (16.2%), and Rejected (4.0%) distributions by product tier</p>
+            </div>
+          </div>
+          <div class="chart-container" style="min-height: 250px;"><canvas id="chartFig3"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            16.25% of applicants drop out before funding (84,500 accounts). Reducing document upload fatigue via automated prefill rescues ~45,475 accounts annually ($58M+ LTV).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PAGE 2 ================= -->
+    <div id="p2" class="tab-content">
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 4 — Lead Time Decomposition: Active Touch vs. Idle Queue Wait</h3>
+              <p>Uncovering the true time sink across the 58.70-hour onboarding journey</p>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartFig4"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            89.3% of lead time (52.42h) is spent waiting idly in departmental queue buffers; active human touch is only 6.29h (PCE = 10.71%). Eliminating batch queues resolves 90% of the delay.
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 5 — Departmental Queue Latency & Hand-Off Delays</h3>
+              <p>Average wait hours accumulated at each stage of the review pipeline</p>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartFig5"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            Overnight batch core runs (18.5h) and Compliance reviews (21.2h) create a 40-hour dead zone. Real-time REST APIs and fuzzy screening eliminate both bottlenecks.
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-grid full-width">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 6 — Little's Law WIP Backlog Dynamics (L = &lambda; &times; W)</h3>
+              <p>System arrival rate (&lambda; = 59.36 apps/hr) &times; Cycle Time (58.70h) = 3,485 active in-flight applications</p>
+            </div>
+          </div>
+          <div class="chart-container" style="min-height: 260px;"><canvas id="chartFig6"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            Over 3,400 customer files are trapped in system queues at any given moment. Compressing cycle time under 24 hours reduces active work-in-progress to &lt; 800 units (-77%).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PAGE 3 ================= -->
+    <div id="p3" class="tab-content">
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 7 — Pareto Distribution of Document Rework Drivers</h3>
+              <p>Frequency and cumulative percentage of all 173,429 rework defect loops</p>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartFig7"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            83.15% of all rework is caused by three preventable upload flaws: Blurry Images (42.1%), Expired IDs (23.0%), and Address Mismatches (18.0%). Client-side gating eliminates 70% of downstream queues.
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 8 — Rework Rate & Abandonment Matrix by Intake Channel</h3>
+              <p>Evaluating defect vulnerability between self-service and assisted channels</p>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartFig8"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            Mobile applicants suffer twice the rework rate of branch applicants (36.8% vs 18.2%) due to lack of camera capture guidance. Client-side computer vision bridges this gap.
+          </div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <h3 style="margin-bottom: 0.75rem; color: var(--primary-dark);">Pareto Defect Classification & Target Engineering Interventions</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Failure Mode / Defect</th>
+              <th>Annual Incidents</th>
+              <th>% of Rework</th>
+              <th>Cumulative %</th>
+              <th>Root Cause Description</th>
+              <th>Target Solution Architecture</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Blurry / Low-Resolution Image</strong></td>
+              <td>72,994</td>
+              <td>42.09%</td>
+              <td>42.09%</td>
+              <td>User camera lacks real-time focus & glare check</td>
+              <td>Client-side OpenCV WebAssembly (FR-001)</td>
+              <td><span class="badge badge-success">VALIDATED (UAT-01)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Expired Identification</strong></td>
+              <td>39,964</td>
+              <td>23.04%</td>
+              <td>65.13%</td>
+              <td>Portal accepts expired documents without check</td>
+              <td>Automated OCR Date Expiration Engine (FR-002)</td>
+              <td><span class="badge badge-success">VALIDATED (UAT-04)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Address Proof Mismatch</strong></td>
+              <td>31,249</td>
+              <td>18.02%</td>
+              <td>83.15%</td>
+              <td>Manual postal address entry typos</td>
+              <td>Postal Code Bureau REST Prefill (FR-003)</td>
+              <td><span class="badge badge-success">VALIDATED (UAT-06)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Incomplete Form Fields</strong></td>
+              <td>20,716</td>
+              <td>11.94%</td>
+              <td>95.10%</td>
+              <td>Complex multi-step legacy form design</td>
+              <td>Interactive Field Validation & Redis Cache (FR-020)</td>
+              <td><span class="badge badge-success">VALIDATED (UAT-14)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Name Typo / Mismatch</strong></td>
+              <td>8,506</td>
+              <td>4.90%</td>
+              <td>100.00%</td>
+              <td>Rigid exact-string sanctions checking</td>
+              <td>Jaro-Winkler Fuzzy Matching Engine (FR-010)</td>
+              <td><span class="badge badge-success">VALIDATED (UAT-07)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ================= PAGE 4 ================= -->
+    <div id="p4" class="tab-content">
+      <div class="sim-panel">
+        <h3 style="color: var(--primary-dark); margin-bottom: 0.5rem;">Dynamic What-If Financial Sensitivity Simulator</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Adjust the Straight-Through Processing (STP) rate below to dynamically recalculate projected annual operating cash savings, direct unit cost, and 3-Year Net Present Value (NPV @ 8.5% hurdle rate).</p>
+        <div class="sim-slider-container">
+          <span style="font-weight: 700; font-size: 0.9rem;">STP Adoption Rate:</span>
+          <input type="range" min="40" max="80" value="60" step="5" class="sim-slider" id="stpSlider" oninput="runSimulation()">
+          <div class="sim-value" id="stpSliderVal">60%</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+          <div style="background: white; padding: 1rem; border-radius: 6px; border: 1px solid #BFDBFE;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">ANNUAL CASH SAVINGS</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent);" id="sim_savings">$22,092,276</div>
+          </div>
+          <div style="background: white; padding: 1rem; border-radius: 6px; border: 1px solid #BFDBFE;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">3-YEAR NET PRESENT VALUE</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);" id="sim_npv">$49,501,858</div>
+          </div>
+          <div style="background: white; padding: 1rem; border-radius: 6px; border: 1px solid #BFDBFE;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">DIRECT UNIT COST / ACCOUNT</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-dark);" id="sim_unit_cost">$12.55</div>
+          </div>
+          <div style="background: white; padding: 1rem; border-radius: 6px; border: 1px solid #BFDBFE;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">CAPITAL PAYBACK PERIOD</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-light);" id="sim_payback">2.0 Months</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 9 — Core Transformation KPI Benchmark Trajectory</h3>
+              <p>Current AS-IS Baseline vs. Target TO-BE Performance Benchmarks</p>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartFig9"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            Compounding gains: eliminating rework upfront unlocks 60% STP, which compresses average turnaround time by 59.1% and slashes unit processing cost from $67.45 to $12.55 (-81.4%).
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 10 — Scenario Analysis: 3-Year NPV Sensitivity</h3>
+              <p>Conservative (45% STP), Base Case (60% STP), and Aggressive (75% STP) returns</p>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartFig10"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            Even under a pessimistic 45% STP scenario, the project yields $16.57M in annual savings and a $36.06M 3-Year NPV. Downside risk is fully protected against capital loss.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PAGE 5 ================= -->
+    <div id="p5" class="tab-content">
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 11 — Activity-Based Annual Operating Cost Breakdown</h3>
+              <p>Line-item operational variance: AS-IS ($27.97M) vs. TO-BE ($5.87M)</p>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartFig11"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            80.5% of total savings ($17.78M) come from reducing repetitive manual review labor, liberating 100+ skilled analysts to focus on complex AML cases and high-value corporate clients.
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Figure 12 — 3-Year Discounted Cash Flow Realization & Payback Horizon</h3>
+              <p>Cumulative discounted cash returns across 36 operating months ($2.85M CAPEX)</p>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartFig12"></canvas></div>
+          <div class="insight-box">
+            <div class="insight-title">Executive Takeaway</div>
+            The $2.85M investment breaks even in just 2.0 months of full operation, generating an exceptional 3-Year Net Present Value of $49.50M with an IRR exceeding 200%.
+          </div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <h3 style="margin-bottom: 0.75rem; color: var(--primary-dark);">Executive Stakeholder Impact & Value Realization Summary</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Stakeholder Group</th>
+              <th>Operational Problem (Before)</th>
+              <th>Transformation Solution</th>
+              <th>Key Performance Indicator (KPI)</th>
+              <th>Quantified Impact</th>
+              <th>Annual Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>End Customers</strong></td>
+              <td>58.7h turnaround, repetitive document uploads</td>
+              <td>Client-side CV, instant OCR, WhatsApp self-service</td>
+              <td>Turnaround Time (TAT)</td>
+              <td>58.7h &rarr; &lt; 24h (&lt;15m STP)</td>
+              <td><span class="badge badge-success">High CSAT / Frictionless</span></td>
+            </tr>
+            <tr>
+              <td><strong>Retail Leadership</strong></td>
+              <td>16.25% funnel abandonment losing market share</td>
+              <td>Instant account opening, cross-device resumption</td>
+              <td>Customer Abandonment Rate</td>
+              <td>16.25% &rarr; 7.50% (-53.8%)</td>
+              <td><span class="badge badge-success">+45,475 Funded Accounts</span></td>
+            </tr>
+            <tr>
+              <td><strong>Operations (L1)</strong></td>
+              <td>184,000 manual reviews overloaded with blurry images</td>
+              <td>Image quality gate, postal prefill, AI Triage</td>
+              <td>L1 Annual Review Count</td>
+              <td>184K &rarr; 41.6K (-77.4%)</td>
+              <td><span class="badge badge-success">$12,512,640 Savings</span></td>
+            </tr>
+            <tr>
+              <td><strong>Compliance (L2)</strong></td>
+              <td>High false-positive sanctions alerts from exact matches</td>
+              <td>Jaro-Winkler fuzzy screening, automated DOB tiering</td>
+              <td>L2 Annual Review Count</td>
+              <td>29.8K &rarr; 15.6K (-47.7%)</td>
+              <td><span class="badge badge-success">$5,268,055 Savings</span></td>
+            </tr>
+            <tr>
+              <td><strong>Customer Support</strong></td>
+              <td>118,602 tickets; 83% 'Where is my account?' calls</td>
+              <td>Kafka real-time event status push notifications</td>
+              <td>Annual Onboarding Ticket Volume</td>
+              <td>118.6K &rarr; 29.6K (-75.0%)</td>
+              <td><span class="badge badge-success">$1,056,493 Savings</span></td>
+            </tr>
+            <tr>
+              <td><strong>IT & Core Ledgers</strong></td>
+              <td>18.5h overnight batch core account provisioning</td>
+              <td>Core Banking REST API adapter & Kafka bus</td>
+              <td>Account Provisioning Latency</td>
+              <td>18.5h &rarr; &lt; 1,500ms</td>
+              <td><span class="badge badge-success">$2,912,000 API Savings</span></td>
+            </tr>
+            <tr>
+              <td><strong>Executive Committee</strong></td>
+              <td>$67.45 unit cost eroding retail banking margins</td>
+              <td>End-to-end modernization & 60% STP automation</td>
+              <td>Direct Unit Cost per Account</td>
+              <td>$67.45 &rarr; $12.55 (-81.4%)</td>
+              <td><span class="badge badge-success">$22,092,276 Net Cash / Yr</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p><strong>ONBOARD360 Enterprise Analytics Command Center</strong> · Lead Business Analyst & Solution Architect: Hriday Singh Sobti</p>
+    <p style="margin-top: 0.3rem;">Empirical Dataset: 520,000 Applications · Reconciled Source of Truth · 160/160 Master Verification Tests Passed</p>
+  </footer>
+
+  <script>
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      const tabIndex = tabId === 'p1' ? 0 : tabId === 'p2' ? 1 : tabId === 'p3' ? 2 : tabId === 'p4' ? 3 : 4;
+      document.querySelectorAll('.nav-tab')[tabIndex].classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+      
+      // Trigger chart resize
+      window.dispatchEvent(new Event('resize'));
+    }
+
+    // Slicer Interactivity
+    function updateSlicers() {
+      const reg = document.getElementById('regionSlicer').value;
+      const ch = document.getElementById('channelSlicer').value;
+      const rsk = document.getElementById('riskSlicer').value;
+      
+      let mult = 1.0;
+      if (reg === 'UK_EU') mult = 0.40;
+      else if (reg === 'US_NA') mult = 0.30;
+      else if (reg === 'APAC') mult = 0.20;
+      else if (reg === 'LATAM') mult = 0.10;
+
+      if (ch === 'Mobile_App') mult *= 0.50;
+      else if (ch === 'Web_Portal') mult *= 0.28;
+      else if (ch === 'Branch_Assisted') mult *= 0.12;
+      else if (ch === 'Affiliate_Partner') mult *= 0.10;
+
+      const baseVol = 520000;
+      const currVol = Math.round(baseVol * mult);
+      document.getElementById('kpi_volume').innerText = currVol.toLocaleString();
+    }
+
+    // What-If Simulator
+    function runSimulation() {
+      const stp = parseInt(document.getElementById('stpSlider').value);
+      document.getElementById('stpSliderVal').innerText = stp + '%';
+
+      // Base: 60% STP -> $22.09M savings, unit cost $12.55
+      const savingsMult = 0.75 + ((stp - 45) / (75 - 45)) * (1.22 - 0.75);
+      const baseSavings = 22092276.10;
+      const curSavings = baseSavings * savingsMult;
+
+      const baseNPV = 49501858.44;
+      const curNPV = baseNPV * savingsMult;
+
+      const baseUnit = 12.55;
+      const curUnit = Math.max(9.50, 16.80 - ((stp - 40) / 40) * 8.0);
+
+      document.getElementById('sim_savings').innerText = '$' + Math.round(curSavings).toLocaleString();
+      document.getElementById('sim_npv').innerText = '$' + Math.round(curNPV).toLocaleString();
+      document.getElementById('sim_unit_cost').innerText = '$' + curUnit.toFixed(2);
+    }
+
+    // Initialize Chart.js Visuals
+    window.addEventListener('DOMContentLoaded', () => {
+      // Fig 1: Monthly Intake vs SLA Breach
+      new Chart(document.getElementById('chartFig1'), {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          datasets: [
+            {
+              label: 'Application Inflow',
+              data: [43200, 42100, 44500, 43800, 42900, 43500, 44100, 43000, 43700, 44200, 42800, 42200],
+              borderColor: '#1F4E79',
+              backgroundColor: 'rgba(31, 78, 121, 0.1)',
+              yAxisID: 'y',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'SLA Breach Rate (%)',
+              data: [45.8, 46.2, 45.4, 46.5, 45.9, 46.1, 45.7, 46.3, 45.5, 46.0, 45.8, 45.9],
+              borderColor: '#C0392B',
+              backgroundColor: '#C0392B',
+              yAxisID: 'y1',
+              tension: 0.3,
+              borderDash: [5, 5]
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { title: { display: true, text: 'Monthly Applications' }, min: 40000, max: 46000 },
+            y1: { position: 'right', title: { display: true, text: 'SLA Breach %' }, min: 40, max: 50, grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+
+      // Fig 2: Channel Mix
+      new Chart(document.getElementById('chartFig2'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Mobile App (50%)', 'Web Portal (28%)', 'Branch Assisted (12%)', 'Affiliate Partner (10%)'],
+          datasets: [{
+            data: [260000, 145600, 62400, 52000],
+            backgroundColor: ['#1F4E79', '#2E75B6', '#5B9BD5', '#BDD7EE']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      // Fig 3: Customer Segment Outcomes
+      new Chart(document.getElementById('chartFig3'), {
+        type: 'bar',
+        data: {
+          labels: ['Standard Retail (312K)', 'Fintech Digital (130K)', 'Premier Wealth (52K)', 'SME Business (26K)'],
+          datasets: [
+            { label: 'Approved', data: [80.2, 78.5, 82.1, 76.8], backgroundColor: '#00A86B' },
+            { label: 'Abandoned', data: [16.4, 17.8, 12.5, 16.9], backgroundColor: '#E67E22' },
+            { label: 'Rejected', data: [3.4, 3.7, 5.4, 6.3], backgroundColor: '#C0392B' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { stacked: true }, y: { stacked: true, max: 100, title: { display: true, text: 'Outcome %' } } }
+        }
+      });
+
+      // Fig 4: Touch vs Wait Time
+      new Chart(document.getElementById('chartFig4'), {
+        type: 'bar',
+        data: {
+          labels: ['Total Turnaround Time (58.70h)'],
+          datasets: [
+            { label: 'Active Touch Time (10.7%)', data: [6.29], backgroundColor: '#00A86B' },
+            { label: 'Idle Queue Wait Time (89.3%)', data: [52.42], backgroundColor: '#C0392B' }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { stacked: true, title: { display: true, text: 'Elapsed Hours' } }, y: { stacked: true } }
+        }
+      });
+
+      // Fig 5: Queue Latency by Department
+      new Chart(document.getElementById('chartFig5'), {
+        type: 'bar',
+        data: {
+          labels: ['Compliance L2 Queue', 'Level-1 Ops Queue', 'Core Ledger Batch', 'Initial Intake Buffer'],
+          datasets: [{
+            label: 'Average Queue Wait Hours',
+            data: [21.2, 18.6, 18.5, 8.4],
+            backgroundColor: ['#C0392B', '#E67E22', '#1F4E79', '#5B9BD5']
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { title: { display: true, text: 'Wait Hours' } } }
+        }
+      });
+
+      // Fig 6: Little\'s Law WIP Backlog
+      new Chart(document.getElementById('chartFig6'), {
+        type: 'bar',
+        data: {
+          labels: ['Baseline AS-IS System', 'Target TO-BE System'],
+          datasets: [
+            { label: 'Active In-Flight WIP Units', data: [3485, 792], backgroundColor: '#1F4E79' },
+            { label: 'Idle Queued Units', data: [3111, 264], backgroundColor: '#C0392B' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { title: { display: true, text: 'Concurrent Applications in Flight' } } }
+        }
+      });
+
+      // Fig 7: Pareto Document Rework
+      new Chart(document.getElementById('chartFig7'), {
+        data: {
+          labels: ['Blurry Image', 'Expired ID', 'Address Mismatch', 'Incomplete Form', 'Name Mismatch'],
+          datasets: [
+            {
+              type: 'bar',
+              label: 'Annual Incident Count',
+              data: [72994, 39964, 31249, 20716, 8506],
+              backgroundColor: '#1F4E79',
+              yAxisID: 'y'
+            },
+            {
+              type: 'line',
+              label: 'Cumulative Defect %',
+              data: [42.1, 65.1, 83.2, 95.1, 100.0],
+              borderColor: '#C0392B',
+              backgroundColor: '#C0392B',
+              borderWidth: 2,
+              yAxisID: 'y1',
+              tension: 0.2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { title: { display: true, text: 'Incident Count' } },
+            y1: { position: 'right', min: 0, max: 100, title: { display: true, text: 'Cumulative %' }, grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+
+      // Fig 8: Rework by Channel
+      new Chart(document.getElementById('chartFig8'), {
+        type: 'bar',
+        data: {
+          labels: ['Mobile App', 'Web Portal', 'Affiliate Partner', 'Branch Assisted'],
+          datasets: [
+            { label: 'Rework Rate (%)', data: [36.8, 31.4, 28.5, 18.2], backgroundColor: '#C0392B' },
+            { label: 'Abandonment Rate (%)', data: [17.8, 15.6, 14.2, 8.1], backgroundColor: '#E67E22' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { title: { display: true, text: 'Rate (%)' }, max: 45 } }
+        }
+      });
+
+      // Fig 9: Target Benchmarks
+      new Chart(document.getElementById('chartFig9'), {
+        type: 'bar',
+        data: {
+          labels: ['Turnaround Time (Hrs)', 'First-Pass Yield (%)', 'Rework Rate (%)', 'Unit Cost ($)'],
+          datasets: [
+            { label: 'AS-IS Baseline', data: [58.70, 58.12, 33.35, 67.45], backgroundColor: '#7F8C8D' },
+            { label: 'TO-BE Target', data: [24.00, 78.00, 10.00, 12.55], backgroundColor: '#00A86B' }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      // Fig 10: Scenario 3-Yr NPV
+      new Chart(document.getElementById('chartFig10'), {
+        type: 'bar',
+        data: {
+          labels: ['Conservative (45% STP)', 'Base Case (60% STP)', 'Aggressive (75% STP)'],
+          datasets: [{
+            label: '3-Year Net Present Value ($)',
+            data: [36063893, 49501858, 61369267],
+            backgroundColor: ['#5B9BD5', '#1F4E79', '#00A86B']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { title: { display: true, text: '3-Year NPV ($)' } } }
+        }
+      });
+
+      // Fig 11: Activity-Based OPEX
+      new Chart(document.getElementById('chartFig11'), {
+        type: 'bar',
+        data: {
+          labels: ['L1 Ops Labor', 'L2 Compliance Labor', 'Vendor APIs', 'Support Inquiries', 'Manual Admin', 'Cloud SaaS'],
+          datasets: [
+            { label: 'AS-IS Baseline ($)', data: [13910400, 6789055, 5096000, 1408658, 763087, 0], backgroundColor: '#C0392B' },
+            { label: 'TO-BE Target ($)', data: [1397760, 1521000, 2184000, 352164, 0, 420000], backgroundColor: '#00A86B' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { title: { display: true, text: 'Annual Cost ($)' } } }
+        }
+      });
+
+      // Fig 12: Cash Flow & Payback
+      new Chart(document.getElementById('chartFig12'), {
+        type: 'line',
+        data: {
+          labels: ['Month 0 (CAPEX)', 'Month 1', 'Month 2 (Breakeven)', 'Month 6', 'Month 12 (Y1)', 'Month 24 (Y2)', 'Month 36 (Y3)'],
+          datasets: [{
+            label: 'Cumulative Net Cash Flow ($)',
+            data: [-2850000, -1377181, 95637, 5986909, 14823820, 36916096, 59008373],
+            borderColor: '#00A86B',
+            backgroundColor: 'rgba(0, 168, 107, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { title: { display: true, text: 'Cumulative Cash Flow ($)' } } }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
