@@ -8,12 +8,6 @@
 [![UAT Pass Rate](https://img.shields.io/badge/UAT-100%25_Sign--off-brightgreen?style=flat-square)](09_UAT/)
 [![ROI Payback](https://img.shields.io/badge/Capital_Payback-2.0_Months-blueviolet?style=flat-square)](10_Business_Case/)
 
-<p align="left">
-  <a href="11_Executive_Presentation/ONBOARD360_Executive_Review.pdf"><img src="https://img.shields.io/badge/📄_Executive_Report-Download_PDF-1F4E79?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="View Executive Report PDF" height="32" /></a>
-  <a href="08_PowerBI/index.html"><img src="https://img.shields.io/badge/📊_Live_Dashboard-Open_Interactive_Center-00A86B?style=for-the-badge&logo=powerbi&logoColor=white" alt="Open Interactive Dashboard" height="32" /></a>
-  <a href="00_Project_Governance/FINAL_IMPACT_MATRIX.xlsx"><img src="https://img.shields.io/badge/📈_Impact_Matrix-Download_Excel-2E75B6?style=for-the-badge&logo=microsoftexcel&logoColor=white" alt="Download Impact Matrix" height="32" /></a>
-</p>
-
 📄 **[View the Full Executive Report (PDF)](11_Executive_Presentation/ONBOARD360_Executive_Review.pdf)**  
 📊 **[Open Interactive Dashboard (HTML)](08_PowerBI/index.html)**  
 📈 **[Download Verified Impact Matrix (XLSX)](00_Project_Governance/FINAL_IMPACT_MATRIX.xlsx)**
