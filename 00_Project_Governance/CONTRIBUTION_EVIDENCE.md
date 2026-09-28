@@ -1,6 +1,6 @@
 # ONBOARD360 — Personal Contribution & Evidence Dossier
 **Document ID:** GOV-CON-001  
-**Author:** Hriday Singh Sobti (Senior Business Analyst & Solution Architect)  
+**Author:** Hriday Singh Sobti  
 **Date:** 2026-09-28  
 **Standard:** Personal Contribution Forensics & Stakeholder Value Realization  
 **Status:** COMPLETE & VERIFIED  
@@ -104,7 +104,7 @@ Every major contribution is documented below using the mandatory **Before $\righ
 
 ## 3. Personal Contribution Forensic Audit
 
-This section details exactly what **Hriday Singh Sobti** personally performed as Lead Business Analyst and Solution Architect:
+This section details exactly what **Hriday Singh Sobti** personally performed:
 
 ### Activity 1: Operational Baseline & Little's Law Queuing Model
 * **What I Did**: Structured the empirical baseline across 520,000 annual onboarding applications; derived arrival rate $\lambda = 59.36$ apps/hour; calculated Little's Law WIP queues and touch/wait ratios.
@@ -249,7 +249,6 @@ This section details exactly what **Hriday Singh Sobti** personally performed as
 
 Every single claim, metric, formula, and file location documented in this contribution dossier is traceable to an executable script, a verified dataset, or an audited spreadsheet model in this repository.
 
-**Lead Business Analyst Sign-off:**  
+**Contributor Sign-off:**  
 *Hriday Singh Sobti*  
-Lead Business Analyst & Solution Architect  
 ONBOARD360 Transformation Initiative  

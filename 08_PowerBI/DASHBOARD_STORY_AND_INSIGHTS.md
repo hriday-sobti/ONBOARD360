@@ -1,6 +1,6 @@
 # ONBOARD360 — Dashboard Analytical Story, Chart Audit & Executive Insights
 **Document ID:** PBI-INS-001  
-**Author:** Hriday Singh Sobti (Senior Business Analyst & Solution Architect)  
+**Author:** Hriday Singh Sobti  
 **Date:** 2026-09-28  
 **Scope:** Complete 5-Page Dashboard Audit & 12-Chart Narrative Storyline  
 **Status:** COMPLETE & VERIFIED  

@@ -2,7 +2,7 @@
 **Document ID:** GOV-AUD-FINAL-001  
 **Evaluation Date:** 2026-09-28  
 **Audit Standard:** Final Project Audit & Publication-Quality Verification Mandate  
-**Lead Auditor:** Hriday Singh Sobti (Senior Business Analyst & Solution Architect)  
+**Lead Auditor:** Hriday Singh Sobti  
 **Audit Status:** COMPLETE — 100% EVIDENCE RECONCILED  
 
 ---

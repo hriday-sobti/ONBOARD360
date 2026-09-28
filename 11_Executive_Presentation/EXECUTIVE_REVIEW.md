@@ -2,7 +2,7 @@
 ## Executive Report & Transformation Blueprint
 
 **Document ID:** EXE-REP-001  
-**Lead Contributor:** Hriday Singh Sobti (Senior Business Analyst & Solution Architect)  
+**Lead Contributor:** Hriday Singh Sobti  
 **Presented To:** Board of Directors & Executive Committee, NovaBank International  
 **Domain:** Global Retail & Commercial Banking Operations (UK/EU, US, APAC, LatAm)  
 **Status:** Baselined & Formally Audited (160/160 Verification Tests Passed)  
@@ -443,5 +443,4 @@ An investment of $2.85M yields $49.50M in 3-Year NPV, an IRR exceeding 200%, and
 
 **Lead Contributor & Sign-off:**  
 *Hriday Singh Sobti*  
-Senior Business Analyst & Solution Architect  
 NovaBank International Transformation Initiative  

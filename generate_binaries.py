@@ -284,7 +284,7 @@ def create_pdf_artifacts():
 
         story = [
             Paragraph('ONBOARD360 — Customer Onboarding & KYC Process Modernization', t_style),
-            Paragraph('<b>Executive Report & Transformation Blueprint</b> | Lead Contributor: Hriday Singh Sobti (Senior Business Analyst & Solution Architect) | NovaBank International', sub_style),
+            Paragraph('<b>Executive Report & Transformation Blueprint</b> | Lead Contributor: Hriday Singh Sobti | NovaBank International', sub_style),
             Spacer(1, 4),
             Paragraph('1. Executive Summary: The Strategic Mandate', s_h1),
             Paragraph('NovaBank International processes <b>520,000 onboarding applications annually</b> across UK/EU, North America, APAC, and Latin America. The legacy journey suffered from an average cycle time of <b>58.70 hours</b>, driven by an <b>89.3% idle queue wait delay (52.42 hours)</b>. A <b>33.35% rework defect rate</b> directly precipitated a <b>16.25% customer abandonment rate</b> and inflated unit processing costs to <b>$67.45 per completed account</b> ($27.97M annual direct operating cost).', b_style),

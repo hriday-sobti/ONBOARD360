@@ -2,7 +2,7 @@
 **Project Name:** ONBOARD360 — Customer Onboarding & KYC Process Modernization  
 **Project Type:** Enterprise Business Analysis, Process Optimization & RegTech Solution Architecture  
 **Domain:** Global Retail & Commercial Banking Operations (UK/EU, US, APAC, LatAm)  
-**Lead Contributor:** Hriday Singh Sobti (Senior Business Analyst & Solution Architect)  
+**Lead Contributor:** Hriday Singh Sobti  
 **Baseline Volume:** 520,000 Inbound Customer Applications / Year  
 **Status:** Complete, Mathematically Reconciled, and Formally Audited  
 
